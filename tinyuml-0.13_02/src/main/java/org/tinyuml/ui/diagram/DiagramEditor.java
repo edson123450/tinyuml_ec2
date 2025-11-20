@@ -531,6 +531,14 @@ DiagramEditorNotification, DiagramOperations, NodeChangeListener {
   public StructureDiagram getDiagram() { return diagram; }
 
   /**
+   * Returns all elements contained in the diagram.
+   * @return collection of all DiagramElement instances in this diagram
+   */
+  public Collection<DiagramElement> getAllElements(){
+    return diagram.getChildren();
+  }
+
+  /**
    * Returns the canUndo status.
    * @return true if can undo, false otherwise
    */

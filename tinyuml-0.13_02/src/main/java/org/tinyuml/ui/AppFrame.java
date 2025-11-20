@@ -45,6 +45,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
+import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import org.tinyuml.draw.Label;
 import org.tinyuml.draw.DiagramElement;
@@ -52,6 +53,9 @@ import org.tinyuml.draw.LabelChangeListener;
 import org.tinyuml.model.UmlModel;
 import org.tinyuml.util.AppCommandListener;
 import org.tinyuml.umldraw.structure.StructureDiagram;
+import org.tinyuml.umldraw.structure.ClassElement;
+import org.tinyuml.umldraw.structure.ComponentElement;
+import org.tinyuml.umldraw.structure.PackageElement;
 import org.tinyuml.model.UmlModelImpl;
 import org.tinyuml.ui.commands.ModelReader;
 import org.tinyuml.ui.commands.ModelWriter;
@@ -80,7 +84,7 @@ implements EditorStateListener, AppCommandListener, SelectionListener {
   private JTabbedPane tabbedPane;
   private JLabel coordLabel = new JLabel("    ");
   private JLabel memLabel = new JLabel("    ");
-  // hola
+  private JLabel countLabel= new JLabel("    ");
   private UmlModel umlModel;
   private DiagramEditor currentEditor;
   private transient Timer timer = new Timer();
@@ -241,7 +245,11 @@ implements EditorStateListener, AppCommandListener, SelectionListener {
    */
   private void installStatusbar() {
     JPanel statusbar = new JPanel(new BorderLayout());
+    coordLabel.setBorder(new EmptyBorder(0,10,0,10));
+    countLabel.setBorder(new EmptyBorder(0,30,0,10));
+    memLabel.setBorder(new EmptyBorder(0,10,0,10));
     statusbar.add(coordLabel, BorderLayout.WEST);
+    statusbar.add(countLabel, BorderLayout.CENTER);
     statusbar.add(memLabel, BorderLayout.EAST);
     getContentPane().add(statusbar, BorderLayout.SOUTH);
   }
@@ -304,6 +312,42 @@ implements EditorStateListener, AppCommandListener, SelectionListener {
     menumanager.enableMenuItem("REDO", editor.canRedo());
     toolbarmanager.enableButton("UNDO", editor.canUndo());
     toolbarmanager.enableButton("REDO", editor.canRedo());
+
+    updateElementCount(editor);
+
+  }
+
+  /**
+   * Updates the status bar with the number of Packages, Classes and Components.
+   * Requirement: show Total Items and per-type counts.
+   */
+  private void updateElementCount(DiagramEditor editor){
+    if(editor==null) {
+      countLabel.setText("");
+      return;
+    }
+    int packageCount=0;
+    int classCount=0;
+    int componentCount=0;
+
+    for(DiagramElement element: editor.getAllElements()){
+      if(element instanceof PackageElement){
+        packageCount++;
+      } else if(element instanceof ClassElement){
+        classCount++;
+      } else if(element instanceof ComponentElement){
+        componentCount++;
+      }
+
+      int total=packageCount+classCount+componentCount;
+      String text=String.format(
+              "Total Items: %02d; Package: %02d; Class: %02d; Component: %02d   ",
+              total,packageCount,classCount,componentCount
+      );
+
+      countLabel.setText(text);
+
+    }
   }
 
   // ************************************************************************
